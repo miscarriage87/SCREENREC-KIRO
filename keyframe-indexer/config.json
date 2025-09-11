@@ -1,0 +1,18 @@
+{
+  "extraction_fps": 1.5,
+  "output_dir": "./output",
+  "scene_detection": {
+    "ssim_threshold": 0.8,
+    "phash_distance_threshold": 10,
+    "entropy_threshold": 0.1
+  },
+  "video_extensions": [
+    "mp4",
+    "mov",
+    "avi",
+    "mkv",
+    "m4v",
+    "webm"
+  ],
+  "max_concurrent_processing": 4
+}

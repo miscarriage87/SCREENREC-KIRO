@@ -1,0 +1,55 @@
+# Rust
+/target/
+**/*.rs.bk
+Cargo.lock
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Output directories
+/output/
+/frames/
+/test-videos/
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.temp
+
+# Configuration overrides
+config.local.json
+*.local.json
+
+# Test artifacts
+/test-output/
+/test-frames/
+
+# Parquet files
+*.parquet
+
+# Video files
+*.mp4
+*.mov
+*.avi
+*.mkv
+*.m4v
+*.webm
+
+# Backup files
+*.bak
+*.backup
