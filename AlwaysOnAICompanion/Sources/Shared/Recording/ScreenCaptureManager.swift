@@ -61,6 +61,9 @@ public class ScreenCaptureManager: NSObject, ScreenCaptureManagerProtocol {
     // Recovery manager integration
     public weak var recoveryManager: RecoveryManager?
     
+    // Allowlist manager integration
+    public weak var allowlistManager: AllowlistManager?
+    
     @Published public private(set) var isRecording: Bool = false
     
     public var capturedDisplays: [DisplayCaptureSession] {
@@ -92,6 +95,18 @@ public class ScreenCaptureManager: NSObject, ScreenCaptureManagerProtocol {
         recoveryManager.onGracefulDegradation = { [weak self] failedDisplays in
             Task {
                 await self?.handleGracefulDegradation(failedDisplays: failedDisplays)
+            }
+        }
+    }
+    
+    /// Sets the allowlist manager for privacy control
+    public func setAllowlistManager(_ allowlistManager: AllowlistManager) {
+        self.allowlistManager = allowlistManager
+        
+        // Set up allowlist change callbacks
+        allowlistManager.onAllowlistChanged = { [weak self] in
+            Task {
+                await self?.handleAllowlistChanged()
             }
         }
     }
@@ -287,9 +302,12 @@ public class ScreenCaptureManager: NSObject, ScreenCaptureManagerProtocol {
             _ = try await enumerateDisplays()
         }
         
-        // Determine which displays to capture
+        // Determine which displays to capture based on allowlist
         let displayIDsToCapture: [CGDirectDisplayID]
-        if configuration.selectedDisplays.isEmpty {
+        if let allowlistManager = self.allowlistManager {
+            // Use allowlist manager to determine allowed displays
+            displayIDsToCapture = allowlistManager.getAllowedDisplays()
+        } else if configuration.selectedDisplays.isEmpty {
             // Capture all available displays
             displayIDsToCapture = await availableDisplays.map { $0.displayID }
         } else {
@@ -513,10 +531,84 @@ extension ScreenCaptureManager: SCStreamDelegate {
         }
     }
     
+    /// Handles allowlist changes by updating capture sessions
+    private func handleAllowlistChanged() async {
+        logger.info("Allowlist changed, updating capture sessions")
+        
+        guard isRecording else {
+            logger.info("Not currently recording, no action needed")
+            return
+        }
+        
+        // Check if current application should be captured
+        if let allowlistManager = self.allowlistManager,
+           !allowlistManager.shouldCaptureCurrentApplication() {
+            logger.info("Current application is not allowed, pausing capture")
+            await pauseCapture()
+            return
+        }
+        
+        // Get new allowed displays
+        let newAllowedDisplays = allowlistManager?.getAllowedDisplays() ?? []
+        let currentDisplays = Set(captureSessions.keys)
+        let newDisplaysSet = Set(newAllowedDisplays)
+        
+        // Stop capture for displays that are no longer allowed
+        let displaysToStop = currentDisplays.subtracting(newDisplaysSet)
+        for displayID in displaysToStop {
+            if let session = captureSessions[displayID] {
+                do {
+                    try await session.stream.stopCapture()
+                    captureSessions.removeValue(forKey: displayID)
+                    logger.info("Stopped capture for display \(displayID) (removed from allowlist)")
+                } catch {
+                    logger.error("Failed to stop capture for display \(displayID): \(error)")
+                }
+            }
+        }
+        
+        // Start capture for new allowed displays
+        let displaysToStart = newDisplaysSet.subtracting(currentDisplays)
+        if !displaysToStart.isEmpty {
+            do {
+                try await configureDisplays(Array(displaysToStart))
+                
+                // Start capture for new displays
+                for displayID in displaysToStart {
+                    if let session = captureSessions[displayID] {
+                        try await session.stream.startCapture()
+                        captureSessions[displayID]?.isActive = true
+                        logger.info("Started capture for display \(displayID) (added to allowlist)")
+                    }
+                }
+            } catch {
+                logger.error("Failed to configure new displays: \(error)")
+            }
+        }
+        
+        // Update recording status
+        let activeSessions = captureSessions.values.filter { $0.isActive }
+        isRecording = !activeSessions.isEmpty
+    }
+    
     private func handleScreenFrame(_ sampleBuffer: CMSampleBuffer, from stream: SCStream) {
         // Find which display this frame came from
         guard let displayID = captureSessions.first(where: { $0.value.stream === stream })?.key else {
             logger.warning("Received frame from unknown stream")
+            return
+        }
+        
+        // Check if current application should be captured on this display
+        if let allowlistManager = self.allowlistManager,
+           !allowlistManager.shouldCaptureCurrentApplication(onDisplay: displayID) {
+            // Skip this frame as the current application is not allowed on this display
+            return
+        }
+        
+        // Check if this display should be captured
+        if let allowlistManager = self.allowlistManager,
+           !allowlistManager.shouldCaptureDisplay(displayID) {
+            // Skip this frame as the display is not allowed
             return
         }
         

@@ -1,0 +1,65 @@
+{
+  "configurations" : [
+    {
+      "id" : "E8B8F8A0-8B8A-4B8A-8B8A-8B8A8B8A8B8A",
+      "name" : "Integration Tests Configuration",
+      "options" : {
+        "commandLineArgumentEntries" : [
+          {
+            "argument" : "-IntegrationTestMode YES"
+          },
+          {
+            "argument" : "-TestDataDirectory /tmp/IntegrationTestData"
+          }
+        ],
+        "environmentVariableEntries" : [
+          {
+            "key" : "INTEGRATION_TEST_MODE",
+            "value" : "1"
+          },
+          {
+            "key" : "TEST_TIMEOUT_MULTIPLIER",
+            "value" : "3"
+          }
+        ],
+        "maximumTestExecutionTimeAllowance" : 1800,
+        "testExecutionOrdering" : "random",
+        "testTimeoutsEnabled" : true
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "codeCoverage" : {
+      "targets" : [
+        {
+          "containerPath" : "container:AlwaysOnAICompanion.xcodeproj",
+          "identifier" : "Shared",
+          "name" : "Shared"
+        }
+      ]
+    },
+    "testExecutionOrdering" : "random"
+  },
+  "testTargets" : [
+    {
+      "parallelizable" : false,
+      "target" : {
+        "containerPath" : "container:AlwaysOnAICompanion.xcodeproj",
+        "identifier" : "AlwaysOnAICompanionTests",
+        "name" : "AlwaysOnAICompanionTests"
+      },
+      "testSelections" : [
+        {
+          "testIdentifiers" : [
+            "EndToEndPipelineTests",
+            "MultiMonitorIntegrationTests", 
+            "FailureRecoveryIntegrationTests",
+            "UserWorkflowIntegrationTests",
+            "PerformanceBenchmarkTests"
+          ]
+        }
+      ]
+    }
+  ],
+  "version" : 1
+}

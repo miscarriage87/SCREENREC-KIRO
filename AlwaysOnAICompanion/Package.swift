@@ -27,7 +27,9 @@ let package = Package(
         ),
     ],
     dependencies: [
-        // Add any external dependencies here if needed
+        // SwiftyTesseract dependency removed for mock implementation
+        // In production, you would add: .package(url: "https://github.com/SwiftyTesseract/SwiftyTesseract.git", from: "4.0.0")
+        .package(url: "https://github.com/stephencelis/SQLite.swift.git", from: "0.15.3")
     ],
     targets: [
         .executableTarget(
@@ -52,7 +54,9 @@ let package = Package(
         ),
         .target(
             name: "Shared",
-            dependencies: [],
+            dependencies: [
+                .product(name: "SQLite", package: "SQLite.swift")
+            ],
             path: "Sources/Shared"
         ),
         .testTarget(

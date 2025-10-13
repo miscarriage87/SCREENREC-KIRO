@@ -152,8 +152,8 @@ impl SceneDetector {
         covar /= n - 1.0;
         
         // SSIM constants
-        let c1 = (0.01 * 255.0).powi(2);
-        let c2 = (0.03 * 255.0).powi(2);
+        let c1 = (0.01 * 255.0_f32).powi(2);
+        let c2 = (0.03 * 255.0_f32).powi(2);
         
         // Calculate SSIM
         let numerator = (2.0 * mean1 * mean2 + c1) * (2.0 * covar + c2);
@@ -174,10 +174,12 @@ impl SceneDetector {
         let total_pixels = (gray_image.width() * gray_image.height()) as f32;
         let mut entropy = 0.0;
         
-        for &count in &hist {
-            if count > 0 {
-                let probability = count as f32 / total_pixels;
-                entropy -= probability * probability.log2();
+        for channel in hist.channels.iter() {
+            for &count in channel.iter() {
+                if count > 0 {
+                    let probability = count as f32 / total_pixels;
+                    entropy -= probability * probability.log2();
+                }
             }
         }
         

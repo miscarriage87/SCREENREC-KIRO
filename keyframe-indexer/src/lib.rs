@@ -2,18 +2,57 @@ pub mod keyframe_extractor;
 pub mod scene_detector;
 pub mod file_watcher;
 pub mod metadata_collector;
-pub mod parquet_writer;
+pub mod csv_writer;
 pub mod error;
 pub mod config;
-pub mod scene_detector_standalone_test;
+pub mod csv_test;
+pub mod parquet_writer;
+pub mod ocr_data;
+pub mod ocr_parquet_writer;
+pub mod event_detector;
+pub mod event_parquet_writer;
+pub mod delta_analyzer;
+pub mod navigation_detector;
+pub mod cursor_tracker;
+pub mod event_correlator;
+pub mod navigation_integration;
+pub mod integration_test;
+pub mod error_modal_detector;
+pub mod encryption;
+
+#[cfg(test)]
+pub mod ocr_parquet_tests;
+
+#[cfg(test)]
+pub mod event_detection_tests;
+
+#[cfg(test)]
+pub mod navigation_integration_tests;
+
+#[cfg(test)]
+pub mod error_modal_tests;
+
+pub mod simple_event_test;
 
 pub use keyframe_extractor::KeyframeExtractor;
 pub use scene_detector::SceneDetector;
 pub use file_watcher::FileWatcher;
 pub use metadata_collector::MetadataCollector;
-pub use parquet_writer::ParquetWriter;
+pub use csv_writer::CsvWriter;
 pub use error::{IndexerError, Result};
 pub use config::IndexerConfig;
+pub use parquet_writer::ParquetWriter;
+pub use ocr_data::{OCRResult, OCRBatch, BoundingBox};
+pub use ocr_parquet_writer::{OCRParquetWriter, OCRStatistics};
+pub use event_detector::{EventDetector, DetectedEvent, EventType, EventDetectionConfig};
+pub use event_parquet_writer::{EventParquetWriter, EventStatistics};
+pub use delta_analyzer::{DeltaAnalyzer, DeltaAnalysisConfig, FieldChangeInfo, FieldStateInfo};
+pub use navigation_detector::{NavigationDetector, NavigationDetectionConfig, WindowState, TabState, FocusEvent};
+pub use cursor_tracker::{CursorTracker, CursorTrackingConfig, CursorPosition, ClickEvent, MovementTrail, TrailType};
+pub use event_correlator::{EventCorrelator, CorrelationConfig, CorrelationResult, CorrelationType};
+pub use navigation_integration::{NavigationIntegrationService, NavigationIntegrationConfig, NavigationStatistics};
+pub use error_modal_detector::{ErrorModalDetector, ErrorModalDetectionConfig, ErrorModalEvent, ErrorModalType, SeverityLevel, PatternMatch, LayoutAnalysis};
+pub use encryption::{EncryptionManager, SecureParquetWriter};
 
 use anyhow::Result as AnyhowResult;
 use std::path::Path;
@@ -25,7 +64,7 @@ pub struct IndexerService {
     extractor: KeyframeExtractor,
     detector: SceneDetector,
     metadata_collector: MetadataCollector,
-    parquet_writer: ParquetWriter,
+    csv_writer: CsvWriter,
 }
 
 impl IndexerService {
@@ -33,14 +72,14 @@ impl IndexerService {
         let extractor = KeyframeExtractor::new(config.extraction_fps)?;
         let detector = SceneDetector::new(config.scene_detection.clone())?;
         let metadata_collector = MetadataCollector::new()?;
-        let parquet_writer = ParquetWriter::new(&config.output_dir)?;
+        let csv_writer = CsvWriter::new(&config.output_dir)?;
         
         Ok(Self {
             config,
             extractor,
             detector,
             metadata_collector,
-            parquet_writer,
+            csv_writer,
         })
     }
     
@@ -90,8 +129,8 @@ impl IndexerService {
             frame_metadata.push(metadata);
         }
         
-        // Write to Parquet
-        self.parquet_writer.write_frame_metadata(&frame_metadata).await?;
+        // Write to CSV
+        self.csv_writer.write_frame_metadata(&frame_metadata).await?;
         
         info!("Successfully processed video segment: {}", video_path.display());
         Ok(())

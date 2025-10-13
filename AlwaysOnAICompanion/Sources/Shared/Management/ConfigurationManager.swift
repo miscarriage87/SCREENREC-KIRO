@@ -91,7 +91,11 @@ public class ConfigurationManager {
             enableRecovery: true,
             recoveryTimeoutSeconds: 5,
             enableLogging: true,
-            logLevel: .info
+            logLevel: .info,
+            
+            // Retention policy settings
+            enableRetentionPolicies: true,
+            retentionCheckIntervalHours: 24
         )
     }
 }
@@ -112,6 +116,10 @@ public struct RecorderConfiguration: Codable {
     // Storage settings
     public let storageURL: URL
     public let maxStorageDays: Int
+    
+    // Retention policy settings
+    public let enableRetentionPolicies: Bool
+    public let retentionCheckIntervalHours: Int
     
     // Performance settings
     public let maxCPUUsage: Double
@@ -152,7 +160,9 @@ public struct RecorderConfiguration: Codable {
         enableRecovery: Bool,
         recoveryTimeoutSeconds: Int,
         enableLogging: Bool,
-        logLevel: ConfigLogLevel
+        logLevel: ConfigLogLevel,
+        enableRetentionPolicies: Bool,
+        retentionCheckIntervalHours: Int
     ) {
         self.selectedDisplays = selectedDisplays
         self.captureWidth = captureWidth
@@ -175,6 +185,8 @@ public struct RecorderConfiguration: Codable {
         self.recoveryTimeoutSeconds = recoveryTimeoutSeconds
         self.enableLogging = enableLogging
         self.logLevel = logLevel
+        self.enableRetentionPolicies = enableRetentionPolicies
+        self.retentionCheckIntervalHours = retentionCheckIntervalHours
     }
 }
 

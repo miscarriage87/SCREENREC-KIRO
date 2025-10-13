@@ -1,4 +1,5 @@
 use crate::error::{IndexerError, Result};
+#[cfg(feature = "ffmpeg")]
 use ffmpeg_next as ffmpeg;
 use std::path::Path;
 use tracing::{debug, warn, error};
@@ -22,10 +23,13 @@ pub struct KeyframeExtractor {
 
 impl KeyframeExtractor {
     pub fn new(extraction_fps: f32) -> Result<Self> {
-        // Initialize FFmpeg
-        ffmpeg::init().map_err(|e| {
-            IndexerError::FFmpeg(e)
-        })?;
+        #[cfg(feature = "ffmpeg")]
+        {
+            // Initialize FFmpeg
+            ffmpeg::init().map_err(|e| {
+                IndexerError::FFmpeg(e)
+            })?;
+        }
         
         Ok(Self { extraction_fps })
     }
@@ -43,7 +47,21 @@ impl KeyframeExtractor {
                 format!("Video file does not exist: {}", video_path.display())
             ));
         }
+
+        #[cfg(feature = "ffmpeg")]
+        {
+            self.extract_keyframes_ffmpeg(video_path).await
+        }
         
+        #[cfg(not(feature = "ffmpeg"))]
+        {
+            // Mock implementation for testing without FFmpeg
+            self.extract_keyframes_mock(video_path).await
+        }
+    }
+
+    #[cfg(feature = "ffmpeg")]
+    async fn extract_keyframes_ffmpeg(&self, video_path: &Path) -> Result<Vec<Keyframe>> {
         let video_path_str = video_path.to_string_lossy().to_string();
         
         // Open input context
@@ -131,7 +149,45 @@ impl KeyframeExtractor {
         
         Ok(keyframes)
     }
+
+    #[cfg(not(feature = "ffmpeg"))]
+    async fn extract_keyframes_mock(&self, video_path: &Path) -> Result<Vec<Keyframe>> {
+        debug!("Using mock keyframe extraction for: {}", video_path.display());
+        
+        let segment_id = self.generate_segment_id(video_path);
+        let frames_dir = self.create_frames_directory(&segment_id)?;
+        
+        // Create mock keyframes for testing
+        let mut keyframes = Vec::new();
+        let mock_frame_count = 10; // Simulate 10 frames
+        
+        for i in 0..mock_frame_count {
+            let keyframe_id = Uuid::new_v4();
+            let frame_filename = format!("frame_{}_{}.png", segment_id, i);
+            let frame_path = frames_dir.join(&frame_filename);
+            
+            // Create a simple test image (64x64 RGB)
+            let img = image::RgbImage::new(64, 64);
+            img.save(&frame_path)?;
+            
+            let timestamp_ns = (i as f64 / self.extraction_fps as f64 * 1_000_000_000.0) as i64;
+            
+            keyframes.push(Keyframe {
+                id: keyframe_id,
+                timestamp_ns,
+                segment_id: segment_id.clone(),
+                frame_path: frame_path.to_string_lossy().to_string(),
+                width: 64,
+                height: 64,
+                format: "RGB24".to_string(),
+            });
+        }
+        
+        debug!("Generated {} mock keyframes", keyframes.len());
+        Ok(keyframes)
+    }
     
+    #[cfg(feature = "ffmpeg")]
     async fn save_keyframe(
         &self,
         frame: &ffmpeg::util::frame::Video,

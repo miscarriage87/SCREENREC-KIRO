@@ -1,0 +1,165 @@
+import Foundation
+
+/// Demonstration of the retention policy system
+public class RetentionPolicyDemo {
+    
+    public static func runDemo() {
+        print("=== Retention Policy System Demo ===")
+        
+        // 1. Demonstrate basic configuration
+        demonstrateBasicConfiguration()
+        
+        // 2. Demonstrate data type handling
+        demonstrateDataTypes()
+        
+        // 3. Demonstrate cleanup statistics
+        demonstrateCleanupStats()
+        
+        // 4. Demonstrate storage health reporting
+        demonstrateStorageHealth()
+        
+        print("=== Demo Complete ===")
+    }
+    
+    private static func demonstrateBasicConfiguration() {
+        print("\n1. Basic Configuration:")
+        
+        // Create retention policies for different data types
+        let videoPolicy = RetentionPolicy(dataType: .rawVideo, retentionDays: 30)
+        let framePolicy = RetentionPolicy(dataType: .frameMetadata, retentionDays: 90)
+        let ocrPolicy = RetentionPolicy(dataType: .ocrData, retentionDays: 90)
+        let eventPolicy = RetentionPolicy(dataType: .events, retentionDays: 365)
+        let spanPolicy = RetentionPolicy(dataType: .spans, retentionDays: -1) // Permanent
+        let summaryPolicy = RetentionPolicy(dataType: .summaries, retentionDays: -1) // Permanent
+        
+        print("   Video retention: \(videoPolicy.retentionDays) days")
+        print("   Frame metadata retention: \(framePolicy.retentionDays) days")
+        print("   OCR data retention: \(ocrPolicy.retentionDays) days")
+        print("   Events retention: \(eventPolicy.retentionDays) days")
+        print("   Spans retention: \(spanPolicy.retentionDays == -1 ? "Permanent" : "\(spanPolicy.retentionDays) days")")
+        print("   Summaries retention: \(summaryPolicy.retentionDays == -1 ? "Permanent" : "\(summaryPolicy.retentionDays) days")")
+        
+        // Create full retention configuration
+        let config = RetentionConfiguration()
+        print("   Background cleanup enabled: \(config.enableBackgroundCleanup)")
+        print("   Safety margin: \(config.safetyMarginHours) hours")
+        print("   Max files per batch: \(config.maxFilesPerCleanupBatch)")
+        print("   Verification enabled: \(config.verificationEnabled)")
+    }
+    
+    private static func demonstrateDataTypes() {
+        print("\n2. Data Types:")
+        
+        let allTypes = DataType.allCases
+        print("   Available data types:")
+        for dataType in allTypes {
+            print("     - \(dataType.rawValue)")
+        }
+        
+        print("   Total data types: \(allTypes.count)")
+    }
+    
+    private static func demonstrateCleanupStats() {
+        print("\n3. Cleanup Statistics:")
+        
+        // Simulate cleanup statistics
+        let videoStats = CleanupStats(
+            dataType: .rawVideo,
+            filesScanned: 150,
+            filesDeleted: 45,
+            bytesFreed: 2_500_000_000, // 2.5 GB
+            duration: 12.5,
+            errors: []
+        )
+        
+        let frameStats = CleanupStats(
+            dataType: .frameMetadata,
+            filesScanned: 300,
+            filesDeleted: 80,
+            bytesFreed: 150_000_000, // 150 MB
+            duration: 3.2,
+            errors: ["Warning: 2 files were locked"]
+        )
+        
+        print("   Video cleanup:")
+        print("     Files scanned: \(videoStats.filesScanned)")
+        print("     Files deleted: \(videoStats.filesDeleted)")
+        print("     Space freed: \(formatBytes(videoStats.bytesFreed))")
+        print("     Duration: \(String(format: "%.1f", videoStats.duration)) seconds")
+        print("     Errors: \(videoStats.errors.isEmpty ? "None" : "\(videoStats.errors.count)")")
+        
+        print("   Frame metadata cleanup:")
+        print("     Files scanned: \(frameStats.filesScanned)")
+        print("     Files deleted: \(frameStats.filesDeleted)")
+        print("     Space freed: \(formatBytes(frameStats.bytesFreed))")
+        print("     Duration: \(String(format: "%.1f", frameStats.duration)) seconds")
+        print("     Errors: \(frameStats.errors.isEmpty ? "None" : frameStats.errors.joined(separator: ", "))")
+    }
+    
+    private static func demonstrateStorageHealth() {
+        print("\n4. Storage Health:")
+        
+        // Simulate storage breakdown
+        let breakdown: [DataType: Int64] = [
+            .rawVideo: 15_000_000_000,      // 15 GB
+            .frameMetadata: 500_000_000,    // 500 MB
+            .ocrData: 200_000_000,          // 200 MB
+            .events: 100_000_000,           // 100 MB
+            .spans: 50_000_000,             // 50 MB
+            .summaries: 25_000_000          // 25 MB
+        ]
+        
+        let totalSize = breakdown.values.reduce(0, +)
+        let availableSpace: Int64 = 50_000_000_000 // 50 GB available
+        
+        let healthReport = StorageHealthReport(
+            totalSize: totalSize,
+            availableSpace: availableSpace,
+            dataTypeBreakdown: breakdown,
+            recommendations: [
+                "Consider reducing video retention period to free up space",
+                "Can reclaim 2.5 GB by cleaning up old video files",
+                "Frame metadata cleanup would free 150 MB"
+            ],
+            healthStatus: .healthy
+        )
+        
+        print("   Total storage used: \(formatBytes(healthReport.totalSize))")
+        print("   Available space: \(formatBytes(healthReport.availableSpace))")
+        print("   Health status: \(healthReport.healthStatus)")
+        
+        print("   Storage breakdown:")
+        for (dataType, size) in breakdown.sorted(by: { $0.value > $1.value }) {
+            let percentage = Double(size) / Double(totalSize) * 100
+            print("     \(dataType.rawValue): \(formatBytes(size)) (\(String(format: "%.1f", percentage))%)")
+        }
+        
+        print("   Recommendations:")
+        for recommendation in healthReport.recommendations {
+            print("     - \(recommendation)")
+        }
+    }
+    
+    private static func formatBytes(_ bytes: Int64) -> String {
+        let formatter = ByteCountFormatter()
+        formatter.allowedUnits = [.useGB, .useMB, .useKB]
+        formatter.countStyle = .file
+        return formatter.string(fromByteCount: bytes)
+    }
+}
+
+// Extension to make StorageHealthStatus printable
+extension StorageHealthStatus: CustomStringConvertible {
+    public var description: String {
+        switch self {
+        case .healthy:
+            return "Healthy"
+        case .warning:
+            return "Warning"
+        case .critical:
+            return "Critical"
+        case .error:
+            return "Error"
+        }
+    }
+}

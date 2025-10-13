@@ -56,6 +56,10 @@ public struct SystemInfo {
     }
 }
 
+// Re-export monitoring types for easier access
+public typealias SystemMonitorType = SystemMonitor
+public typealias LogManagerType = LogManager
+
 // Logging utilities - using ConfigLogLevel from ConfigurationManager
 
 public class Logger {

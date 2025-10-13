@@ -54,7 +54,7 @@
   - Write tests with known video samples to validate detection accuracy
   - _Requirements: 2.2, 2.4_
 
-- [ ] 8. Create Parquet-based frame metadata storage
+- [x] 8. Create Parquet-based frame metadata storage
   - Set up Apache Arrow/Parquet dependencies in Rust project
   - Implement ParquetWriter for efficient columnar storage of frame metadata
   - Create schema for frames.parquet with timestamps, phash, entropy, app_name, win_title
@@ -62,7 +62,7 @@
   - Write tests for data integrity and query performance
   - _Requirements: 2.3, 2.5_
 
-- [ ] 9. Implement Apple Vision OCR processing engine
+- [x] 9. Implement Apple Vision OCR processing engine
   - Create Swift-based VisionOCRProcessor using Apple Vision framework
   - Implement image preprocessing pipeline with binarization, deskew, and ROI cropping
   - Add ROI detection to identify text regions and UI elements efficiently
@@ -70,7 +70,7 @@
   - Write tests with known text images to validate OCR accuracy
   - _Requirements: 3.1, 3.3, 3.5_
 
-- [ ] 10. Add Tesseract OCR fallback system
+- [x] 10. Add Tesseract OCR fallback system
   - Integrate Tesseract OCR library as backup when Apple Vision fails
   - Implement TesseractFallback class with same interface as Vision processor
   - Add automatic fallback logic based on confidence scores and error conditions
@@ -78,7 +78,7 @@
   - Write integration tests for seamless fallback behavior
   - _Requirements: 3.2, 3.3_
 
-- [ ] 11. Create OCR data storage in Parquet format
+- [x] 11. Create OCR data storage in Parquet format
   - Implement OCR result storage using Parquet columnar format
   - Create schema for ocr.parquet with frame_id, roi, text, language, confidence
   - Add efficient indexing and querying capabilities for text search
@@ -86,7 +86,7 @@
   - Write tests for storage efficiency and retrieval performance
   - _Requirements: 3.4, 3.5_
 
-- [ ] 12. Implement event detection engine for field changes
+- [x] 12. Implement event detection engine for field changes
   - Create DeltaAnalyzer that compares OCR results between consecutive frames
   - Implement algorithms to detect field value changes from previous to current state
   - Add confidence scoring for change detection accuracy
@@ -94,7 +94,7 @@
   - Write tests with synthetic data to validate change detection accuracy
   - _Requirements: 4.1, 4.5_
 
-- [ ] 13. Add navigation and interaction event detection
+- [x] 13. Add navigation and interaction event detection
   - Implement window and tab change detection using system APIs
   - Create cursor tracking system for click events and movement trails
   - Add application focus change detection and logging
@@ -102,7 +102,7 @@
   - Write integration tests for various navigation scenarios
   - _Requirements: 4.2, 4.3, 4.6_
 
-- [ ] 14. Create error and modal dialog detection
+- [x] 14. Create error and modal dialog detection
   - Implement banner recognition algorithms for error messages and modal dialogs
   - Add pattern matching for common error dialog layouts and text patterns
   - Create classification system for different types of system alerts
@@ -110,7 +110,7 @@
   - Write tests with screenshots of various error conditions
   - _Requirements: 4.4, 4.5_
 
-- [ ] 15. Implement event storage in Parquet format
+- [x] 15. Implement event storage in Parquet format
   - Create events.parquet schema with type, target, value_from, value_to, confidence, evidence_frames
   - Implement efficient event storage with proper indexing and compression
   - Add evidence linking system that connects events to supporting frame IDs
@@ -118,7 +118,7 @@
   - Write tests for event storage integrity and retrieval performance
   - _Requirements: 4.5, 4.6_
 
-- [ ] 16. Create secure data storage with encryption
+- [x] 16. Create secure data storage with encryption
   - Implement libsodium/AES-GCM encryption for all Parquet and SQLite files
   - Create key management system with per-user encryption keys
   - Add secure key derivation and storage using macOS Keychain
@@ -126,7 +126,7 @@
   - Write security tests to validate encryption strength and key management
   - _Requirements: 5.3, 7.5_
 
-- [ ] 17. Implement SQLite spans storage system
+- [x] 17. Implement SQLite spans storage system
   - Create SQLite database schema for spans with span_id, kind, t_start, t_end, title, summary_md, tags
   - Implement efficient indexing for temporal and categorical span queries
   - Add transaction management for atomic span operations
@@ -134,7 +134,7 @@
   - Write tests for database integrity and query performance
   - _Requirements: 5.1, 5.5_
 
-- [ ] 18. Add configurable data retention policies
+- [x] 18. Add configurable data retention policies
   - Implement automatic cleanup system for raw video data (14-30 days configurable)
   - Create retention policy engine that manages different data types independently
   - Add background cleanup processes that run efficiently without impacting performance
@@ -142,7 +142,7 @@
   - Write tests for retention policy enforcement and data lifecycle management
   - _Requirements: 5.4_
 
-- [ ] 19. Create activity summarization engine
+- [x] 19. Create activity summarization engine
   - Implement ActivitySummarizer that processes events and spans into narrative summaries
   - Add temporal context analysis to maintain workflow continuity in summaries
   - Create template system for different types of activity reports
@@ -150,7 +150,7 @@
   - Write tests with sample event data to validate summary quality and accuracy
   - _Requirements: 6.1, 6.4_
 
-- [ ] 20. Implement multi-format report generation
+- [x] 20. Implement multi-format report generation
   - Create ReportGenerator that produces Markdown outputs with narrative and tables
   - Add CSV and JSON export capabilities for structured data consumption
   - Implement PlaybookCreator for generating step-by-step action sequences
@@ -158,7 +158,7 @@
   - Write tests for report format consistency and data accuracy
   - _Requirements: 6.1, 6.2, 6.3_
 
-- [ ] 21. Add evidence linking and traceability
+- [x] 21. Add evidence linking and traceability
   - Implement evidence reference system that links summaries back to source frames
   - Create bidirectional linking between events, frames, and generated reports
   - Add temporal correlation analysis to strengthen evidence connections
@@ -166,7 +166,7 @@
   - Write tests for evidence integrity and traceability accuracy
   - _Requirements: 6.5_
 
-- [ ] 22. Implement PII masking and privacy controls
+- [x] 22. Implement PII masking and privacy controls
   - Create PII detection algorithms for common sensitive data patterns
   - Implement configurable masking rules for different types of personal information
   - Add real-time PII filtering during OCR processing to prevent storage of sensitive data
@@ -174,7 +174,7 @@
   - Write tests with synthetic PII data to validate masking effectiveness
   - _Requirements: 7.1_
 
-- [ ] 23. Create application and screen allowlist system
+- [x] 23. Create application and screen allowlist system
   - Implement application filtering that allows users to specify which apps to monitor
   - Add screen-specific allowlists for multi-monitor setups with different privacy needs
   - Create dynamic allowlist management that can be updated without system restart
@@ -182,7 +182,7 @@
   - Write tests for allowlist functionality across various application scenarios
   - _Requirements: 7.2_
 
-- [ ] 24. Add pause hotkey and immediate privacy controls
+- [x] 24. Add pause hotkey and immediate privacy controls
   - Implement global hotkey system that responds within 100ms to pause requests
   - Create immediate recording suspension that stops capture and processing instantly
   - Add visual indicators for recording status and privacy mode activation
@@ -190,7 +190,7 @@
   - Write tests for hotkey responsiveness and privacy mode reliability
   - _Requirements: 7.3_
 
-- [ ] 25. Create plugin architecture for extensible parsing
+- [x] 25. Create plugin architecture for extensible parsing
   - Design plugin interface that allows app-specific parsing extensions
   - Implement plugin loading and management system with sandboxing for security
   - Create base plugin classes for common application types (web, productivity, terminal)
@@ -198,7 +198,7 @@
   - Write example plugins and tests for plugin system functionality
   - _Requirements: 8.1, 8.5_
 
-- [ ] 26. Implement browser-specific parsing plugin
+- [x] 26. Implement browser-specific parsing plugin
   - Create specialized parsing for web applications and browser content
   - Add DOM structure analysis and web page context extraction
   - Implement URL tracking and page navigation detection
@@ -206,7 +206,7 @@
   - Write tests with various web applications to validate parsing accuracy
   - _Requirements: 8.2_
 
-- [ ] 27. Add productivity tool parsing plugins
+- [x] 27. Add productivity tool parsing plugins
   - Implement specialized parsing for Jira ticket management and workflow tracking
   - Create Salesforce-specific parsing for CRM data and process flows
   - Add enhanced field detection for form-based productivity applications
@@ -214,7 +214,7 @@
   - Write tests with sample productivity application data
   - _Requirements: 8.3_
 
-- [ ] 28. Create terminal and command-line parsing plugin
+- [x] 28. Create terminal and command-line parsing plugin
   - Implement command-line specific analysis and command history tracking
   - Add terminal session detection and command execution monitoring
   - Create enhanced parsing for terminal output and error messages
@@ -222,7 +222,7 @@
   - Write tests with various terminal scenarios and command sequences
   - _Requirements: 8.4_
 
-- [ ] 29. Implement menu bar control application
+- [x] 29. Implement menu bar control application
   - Create SwiftUI-based menu bar application for system control and monitoring
   - Implement real-time recording status display with performance metrics
   - Add one-click pause/resume functionality with visual feedback
@@ -230,7 +230,7 @@
   - Write UI tests for menu bar application functionality
   - _Requirements: 9.1, 9.2, 9.3_
 
-- [ ] 30. Add system monitoring and status display
+- [x] 30. Add system monitoring and status display
   - Implement performance metrics collection and display (CPU, memory, disk usage)
   - Create system health monitoring with alerts for performance issues
   - Add recording statistics display (segments created, data processed, errors)
@@ -238,7 +238,7 @@
   - Write tests for monitoring accuracy and alert functionality
   - _Requirements: 9.3, 9.5_
 
-- [ ] 31. Create comprehensive settings and configuration interface
+- [x] 31. Create comprehensive settings and configuration interface
   - Implement intuitive controls for retention policies and privacy settings
   - Add display selection and quality configuration options
   - Create plugin management interface for enabling/disabling extensions
@@ -246,7 +246,7 @@
   - Write tests for settings persistence and configuration validation
   - _Requirements: 9.4_
 
-- [ ] 32. Implement comprehensive integration testing
+- [x] 32. Implement comprehensive integration testing
   - Create end-to-end tests that validate the complete pipeline from recording to reporting
   - Add multi-monitor testing scenarios with various display configurations
   - Implement performance testing that validates CPU and memory usage requirements
@@ -254,7 +254,7 @@
   - Write comprehensive test suite that covers all major user workflows
   - _Requirements: 1.2, 1.3, 1.6_
 
-- [ ] 33. Add deployment and installation system
+- [x] 33. Add deployment and installation system
   - Create automated installer that handles all system permissions and setup
   - Implement proper code signing and notarization for macOS distribution
   - Add installation validation and system requirements checking
@@ -262,7 +262,7 @@
   - Write installation tests for various macOS versions and configurations
   - _Requirements: 7.6_
 
-- [ ] 34. Create documentation and user guides
+- [x] 34. Create documentation and user guides
   - Write comprehensive user documentation covering installation and configuration
   - Create developer documentation for plugin development and system extension
   - Add troubleshooting guides for common issues and performance optimization
